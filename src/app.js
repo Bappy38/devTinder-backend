@@ -1,15 +1,23 @@
 const express = require('express');
 const connectDB = require("./config/database");
+require('dotenv').config();
 
 const app = express();
 
+const PORT = process.env.PORT || 3000;
+
 connectDB()
     .then(() => {
-        console.log("Database connection established");
-        app.listen(3000, () => {
-            console.log("Server is successfully listening on port 3000...");
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
         });
     })
     .catch((err) => {
-        console.error("Failed to connect database");
+        console.error("Server failed to start");
+        process.exit(1);
     });
+
+app.post("/auth/signup", (req, res) => {
+    console.log(req);
+    res.status(201).send("User created successfully");
+});
