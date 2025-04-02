@@ -27,6 +27,23 @@ app.post("/auth/signup", async (req, res) => {
     res.status(201).send("User created successfully");
 });
 
+app.get("/users", async (req, res) => {
+    const users = await User.find({});
+    res.send(users);
+});
+
+app.get("/users/:userId", async (req, res) => {
+    console.log(req.params.userId);
+    const user = await User.findById(req.params.userId);
+
+    if (!user) {
+        res.status(404).send("User not found");
+        return;
+    }
+    
+    res.send(user);
+})
+
 app.use((err, req, res, next) => {
 
     if (err) {
