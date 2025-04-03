@@ -5,6 +5,7 @@ require('dotenv').config();
 const User = require("./models/user");
 const {validateSignUpData} = require("./utils/validation");
 const bcrypt = require("bcrypt");
+const ValidationError = require('./errors/ValidationError');
 
 const app = express();
 
@@ -37,6 +38,26 @@ app.post("/auth/signup", async (req, res, next) => {
             password: passwordHash
         });
         await user.save();
+        res.status(201).send("User created successfully");
+    } catch (err) {
+        next(err);
+    }
+});
+
+app.post("/auth/signin", async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({email: email});
+
+        if (!user) {
+            throw new ValidationError("Invalid Credentials");
+        }
+
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        if (!isValidPassword) {
+            throw new ValidationError("Invalid Credentials");
+        }
+
         res.status(201).send("User created successfully");
     } catch (err) {
         next(err);
