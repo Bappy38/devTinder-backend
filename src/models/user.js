@@ -5,12 +5,12 @@ const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
         required: true,
-        maxLength: 55
+        maxLength: 100
     },
     lastName: {
         type: String,
         required: true,
-        maxLength: 55
+        maxLength: 100
     },
     email: {
         type: String,
@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         trim: true,
         required: true,
-        maxLength: 55,
+        maxLength: 100,
         validate(value) {
             if (!validator.isEmail(value)) {
                 throw new Error("Invalid email address: " + value)
@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        maxLength: 55
+        maxLength: 100
     },
     dateOfBirth: {
         type: Date,

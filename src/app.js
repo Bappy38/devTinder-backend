@@ -4,6 +4,7 @@ require('dotenv').config();
 
 const User = require("./models/user");
 const {validateSignUpData} = require("./utils/validation");
+const bcrypt = require("bcrypt");
 
 const app = express();
 
@@ -25,8 +26,16 @@ app.use(express.json());
 app.post("/auth/signup", async (req, res, next) => {
     try {
         validateSignUpData(req);
-        
-        const user = new User(req.body);
+
+        const { firstName, lastName, email, password } = req.body;
+        const passwordHash = await bcrypt.hash(password, 10);
+
+        const user = new User({
+            firstName,
+            lastName,
+            email,
+            password: passwordHash
+        });
         await user.save();
         res.status(201).send("User created successfully");
     } catch (err) {
