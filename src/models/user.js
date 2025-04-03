@@ -43,7 +43,13 @@ const userSchema = new mongoose.Schema({
         default: 'http://xyz.com'
     },
     skills: {
-        type: [String]
+        type: [String],
+        validate: {
+            validator: function(value) {
+                return value.length <= 3;
+            },
+            message: "skills cannot be more than 3"
+        }
     }
 },
 {
