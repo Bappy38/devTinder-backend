@@ -9,6 +9,8 @@ const cookieParser = require("cookie-parser");
 const ValidationError = require('./errors/ValidationError');
 const jwt = require("jsonwebtoken");
 
+const {userAuth} = require("./middlewares/auth");
+
 const app = express();
 
 const PORT = process.env.PORT || 3000;
@@ -63,7 +65,7 @@ app.post("/auth/signin", async (req, res, next) => {
 
         const accessToken = await jwt.sign({
             userId: user._id
-        }, "secretKey");
+        }, process.env.SECRET_KEY);
         
         res.cookie("accessToken", accessToken);
         res.status(201).send("Logged In Successfull");
@@ -72,16 +74,9 @@ app.post("/auth/signin", async (req, res, next) => {
     }
 });
 
-app.get("/users/profile", async (req, res, next) => {
+app.get("/users/profile", userAuth, async (req, res, next) => {
     try {
-        const cookies = req.cookies;
-        
-        const { accessToken } = cookies;
-
-        const claims = jwt.verify(accessToken, "secretKey");
-
-        const user = await User.findById(claims.userId);
-
+        const user = await User.findById(req.userId);
         res.send(user);
     } catch (err) {
         next(err);
