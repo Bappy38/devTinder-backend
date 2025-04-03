@@ -3,6 +3,7 @@ const connectDB = require("./config/database");
 require('dotenv').config();
 
 const User = require("./models/user");
+const {validateSignUpData} = require("./utils/validation");
 
 const app = express();
 
@@ -23,6 +24,8 @@ app.use(express.json());
 
 app.post("/auth/signup", async (req, res, next) => {
     try {
+        validateSignUpData(req);
+        
         const user = new User(req.body);
         await user.save();
         res.status(201).send("User created successfully");
