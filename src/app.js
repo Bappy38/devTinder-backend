@@ -57,7 +57,22 @@ app.get("/users/:userId", async (req, res, next) => {
 
 app.patch("/users/:userId", async (req, res, next) => {
     try {
-        const updateMetadata = await User.findByIdAndUpdate(req.params.userId, {firstName: req.body.firstName, lastName: req.body.lastName}, {includeResultMetadata: true});
+        const updateMetadata = await User.findByIdAndUpdate(req.params.userId, 
+            {
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                dateOfBirth: req.body.dateOfBirth,
+                gender: req.body.gender,
+                photoUrl: req.body.photoUrl,
+                skills: req.body.skills,
+                email: req.body.email
+            },
+            {
+                includeResultMetadata: true,
+                runValidators: true
+            }
+        );
+
         if (!updateMetadata.value) {
             res.status(404).send("User not found");
             return;
@@ -79,9 +94,7 @@ app.delete("/users/:userId", async (req, res, next) => {
 
 app.use((err, req, res, next) => {
 
-    console.error(err.name);
-
-    // console.error("Error: ", err.stack || err.message || err);
+    console.error("Error: ", err.stack || err.message || err);
 
     let statusCode = 500;
     let message = "Internal Server Error";
