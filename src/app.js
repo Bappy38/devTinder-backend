@@ -21,47 +21,81 @@ connectDB()
 
 app.use(express.json());
 
-app.post("/auth/signup", async (req, res) => {
-    const user = new User(req.body);
-    await user.save();
-    res.status(201).send("User created successfully");
-});
-
-app.get("/users", async (req, res) => {
-    const users = await User.find({});
-    res.send(users);
-});
-
-app.get("/users/:userId", async (req, res) => {
-    const user = await User.findById(req.params.userId);
-
-    if (!user) {
-        res.status(404).send("User not found");
-        return;
+app.post("/auth/signup", async (req, res, next) => {
+    try {
+        const user = new User(req.body);
+        await user.save();
+        res.status(201).send("User created successfully");
+    } catch (err) {
+        next(err);
     }
-
-    res.send(user);
 });
 
-app.patch("/users/:userId", async (req, res) => {
-
-    const updateMetadata = await User.findByIdAndUpdate(req.params.userId, {firstName: req.body.firstName, lastName: req.body.lastName}, {includeResultMetadata: true});
-    if (!updateMetadata.value) {
-        res.status(404).send("User not found");
-        return;
+app.get("/users", async (req, res, next) => {
+    try {
+        const users = await User.find({});
+        res.send(users);   
+    } catch (err) {
+        next(err);
     }
-    res.send("User updated successfully");
 });
 
-app.delete("/users/:userId", async (req, res) => {
+app.get("/users/:userId", async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.userId);
 
-    await User.findByIdAndDelete(req.params.userId);
-    res.send("User deleted successfully");
+        if (!user) {
+            res.status(404).send("User not found");
+            return;
+        }
+
+        res.send(user);   
+    } catch (err) {
+        next(err);
+    }
+});
+
+app.patch("/users/:userId", async (req, res, next) => {
+    try {
+        const updateMetadata = await User.findByIdAndUpdate(req.params.userId, {firstName: req.body.firstName, lastName: req.body.lastName}, {includeResultMetadata: true});
+        if (!updateMetadata.value) {
+            res.status(404).send("User not found");
+            return;
+        }
+        res.send("User updated successfully");   
+    } catch (err) {
+        next(err);
+    }
+});
+
+app.delete("/users/:userId", async (req, res, next) => {
+    try {
+        await User.findByIdAndDelete(req.params.userId);
+        res.send("User deleted successfully");   
+    } catch (err) {
+        next(err);
+    }
 });
 
 app.use((err, req, res, next) => {
 
-    if (err) {
-        res.status(500).send("Internal Server Error");
+    console.error(err.name);
+
+    // console.error("Error: ", err.stack || err.message || err);
+
+    let statusCode = 500;
+    let message = "Internal Server Error";
+
+    if (err.name === 'ValidationError') {
+        statusCode = 400;
+        message = err.message
+    } else if (err.name === 'MongoServerError' && err.code === 11000) {
+        statusCode = 409;
+        message = err.message;
     }
+
+    res.status(statusCode).json({
+        success: false,
+        errror: message
+    });
 });
