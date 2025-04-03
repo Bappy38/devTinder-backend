@@ -5,7 +5,9 @@ require('dotenv').config();
 const User = require("./models/user");
 const {validateSignUpData} = require("./utils/validation");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
 const ValidationError = require('./errors/ValidationError');
+const jwt = require("jsonwebtoken");
 
 const app = express();
 
@@ -23,6 +25,7 @@ connectDB()
     });
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/auth/signup", async (req, res, next) => {
     try {
@@ -58,7 +61,28 @@ app.post("/auth/signin", async (req, res, next) => {
             throw new ValidationError("Invalid Credentials");
         }
 
-        res.status(201).send("User created successfully");
+        const accessToken = await jwt.sign({
+            userId: user._id
+        }, "secretKey");
+        
+        res.cookie("accessToken", accessToken);
+        res.status(201).send("Logged In Successfull");
+    } catch (err) {
+        next(err);
+    }
+});
+
+app.get("/users/profile", async (req, res, next) => {
+    try {
+        const cookies = req.cookies;
+        
+        const { accessToken } = cookies;
+
+        const claims = jwt.verify(accessToken, "secretKey");
+
+        const user = await User.findById(claims.userId);
+
+        res.send(user);
     } catch (err) {
         next(err);
     }
