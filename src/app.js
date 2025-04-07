@@ -7,7 +7,6 @@ const {validateSignUpData} = require("./utils/validation");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const ValidationError = require('./errors/ValidationError');
-const jwt = require("jsonwebtoken");
 
 const {userAuth} = require("./middlewares/auth");
 
@@ -58,18 +57,11 @@ app.post("/auth/signin", async (req, res, next) => {
             throw new ValidationError("Invalid Credentials");
         }
 
-        const isValidPassword = await bcrypt.compare(password, user.password);
-        if (!isValidPassword) {
+        if (!await user.isValidPassword(password)) {
             throw new ValidationError("Invalid Credentials");
         }
 
-        const accessToken = await jwt.sign({
-            userId: user._id
-        },
-        process.env.SECRET_KEY, {
-            expiresIn: process.env.TOKEN_EXPIRES_IN
-        });
-        
+        const accessToken = await user.getAccessToken();
         res.cookie("accessToken", accessToken, {
             expires: new Date(Date.now() + Number(process.env.COOKIE_EXPIRES_IN_MS))
         });
