@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const {validateSignUpData} = require("../utils/validation");
-const ValidationError = require('../errors/ValidationError');
+const { ValidationError } = require('../errors/error');
 const User = require("../models/user");
 const { errorHandler } = require("../middlewares/error");
 

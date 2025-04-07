@@ -1,5 +1,5 @@
 const validator = require("validator");
-const ValidationError = require("../errors/ValidationError");
+const { ValidationError } = require("../errors/error");
 
 const validateSignUpData = (req) => {
 
@@ -13,6 +13,17 @@ const validateSignUpData = (req) => {
     }
 };
 
-module.exports = {
-    validateSignUpData
+const validateEditProfileData = (req) => {
+
+    const allowedFields = [ 'firstName', 'lastName', 'dateOfBirth', 'gender', 'skills' ];
+    const isValidEditProfileRequest = Object.keys(req.body).every((field) => allowedFields.includes(field));
+
+    if (!isValidEditProfileRequest) {
+        throw new ValidationError("Edit Profile Request Is Not Valid");
+    }
 }
+
+module.exports = {
+    validateSignUpData,
+    validateEditProfileData
+};
