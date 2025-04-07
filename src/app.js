@@ -65,9 +65,14 @@ app.post("/auth/signin", async (req, res, next) => {
 
         const accessToken = await jwt.sign({
             userId: user._id
-        }, process.env.SECRET_KEY);
+        },
+        process.env.SECRET_KEY, {
+            expiresIn: process.env.TOKEN_EXPIRES_IN
+        });
         
-        res.cookie("accessToken", accessToken);
+        res.cookie("accessToken", accessToken, {
+            expires: new Date(Date.now() + Number(process.env.COOKIE_EXPIRES_IN_MS))
+        });
         res.status(201).send("Logged In Successfull");
     } catch (err) {
         next(err);
