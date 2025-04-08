@@ -63,9 +63,7 @@ requestRouter.post("/review/:status/:requestId", userAuth, async (req, res, next
             toUserId: loggedInUserId,
             status: "interested"
         });
-
-        console.log(requestId + ' ' + loggedInUserId + ' ');
-
+        
         if (!connectionRequest) {
             throw new NotFoundError("Connection request not found");
         }
