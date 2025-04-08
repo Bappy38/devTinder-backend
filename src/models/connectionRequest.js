@@ -4,7 +4,8 @@ const { ValidationError } = require("../errors/error");
 const connectionRequestSchema = new mongoose.Schema({
     fromUserId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true
+        required: true,
+        ref: 'User'
     },
     toUserId: {
         type: mongoose.Schema.Types.ObjectId,
