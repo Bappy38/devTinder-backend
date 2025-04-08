@@ -28,7 +28,20 @@ const validateEditProfileData = (req) => {
     }
 }
 
+const validateSendConnectionRequestData = (req) => {
+    
+    const fromUserId = req.userId;
+    const toUserId = req.params.toUserId;
+    const status = req.params.status;
+
+    const allowedStatus = ["interested", "ignored"];
+    if (!allowedStatus.includes(status)) {
+        throw new ValidationError("Invalid status type");
+    }
+}
+
 module.exports = {
     validateSignUpData,
-    validateEditProfileData
+    validateEditProfileData,
+    validateSendConnectionRequestData
 };

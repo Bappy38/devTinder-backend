@@ -4,22 +4,37 @@ const { errorHandler } = require("../middlewares/error");
 const ConnectionRequest = require("../models/connectionRequest");
 const { ValidationError, NotFoundError } = require("../errors/error");
 const User = require("../models/user");
+const { validateSendConnectionRequestData } = require("../utils/validation");
 
 const requestRouter = express.Router();
 
 requestRouter.post("/send/:status/:toUserId", userAuth, async (req, res, next) => {
     try {
+        validateSendConnectionRequestData(req);
+
         const fromUserId = req.userId;
         const toUserId = req.params.toUserId;
         const status = req.params.status;
 
-        if (fromUserId === toUserId) {
-            throw new ValidationError("Cannot send connection request to yourself");
-        }
-
         const toUser = await User.findById(toUserId);
         if (!toUser) {
             throw new NotFoundError("User not found");
+        }
+
+        const existingConnReq = await ConnectionRequest.findOne({
+            $or: [
+                {
+                    fromUserId: fromUserId,
+                    toUserId: toUserId
+                },
+                {
+                    fromUserId: toUserId,
+                    toUserId: fromUserId
+                }
+            ]
+        });
+        if (existingConnReq) {
+            throw new ValidationError("Already sent a connection request");
         }
 
         const connectionRequest = new ConnectionRequest({
