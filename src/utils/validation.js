@@ -40,8 +40,18 @@ const validateSendConnectionRequestData = (req) => {
     }
 }
 
+const validateReviewConnectionRequestData = (req) => {
+
+    const status = req.params.status;
+    const allowedStatus = ["accepted", "rejected"];
+    if (!allowedStatus.includes(status)) {
+        throw new ValidationError("Invalid status type");
+    }
+}
+
 module.exports = {
     validateSignUpData,
     validateEditProfileData,
-    validateSendConnectionRequestData
+    validateSendConnectionRequestData,
+    validateReviewConnectionRequestData
 };

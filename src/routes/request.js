@@ -1,10 +1,9 @@
 const express = require("express");
 const { userAuth } = require("../middlewares/auth");
-const { errorHandler } = require("../middlewares/error");
 const ConnectionRequest = require("../models/connectionRequest");
 const { ValidationError, NotFoundError } = require("../errors/error");
 const User = require("../models/user");
-const { validateSendConnectionRequestData } = require("../utils/validation");
+const { validateSendConnectionRequestData, validateReviewConnectionRequestData } = require("../utils/validation");
 
 const requestRouter = express.Router();
 
@@ -51,6 +50,37 @@ requestRouter.post("/send/:status/:toUserId", userAuth, async (req, res, next) =
     } catch(err) {
         next(err);
     }
-}, errorHandler)
+});
+
+requestRouter.post("/review/:status/:requestId", userAuth, async (req, res, next) => {
+    try {
+        validateReviewConnectionRequestData(req);
+
+        const loggedInUserId = req.userId;
+        const { status, requestId } = req.params;
+        const connectionRequest = await ConnectionRequest.findOne({
+            _id: requestId,
+            toUserId: loggedInUserId,
+            status: "interested"
+        });
+
+        console.log(requestId + ' ' + loggedInUserId + ' ');
+
+        if (!connectionRequest) {
+            throw new NotFoundError("Connection request not found");
+        }
+
+        connectionRequest.status = status;
+        const data = await connectionRequest.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Connection request reviewed successfully",
+            data
+        });
+    } catch (err) {
+        next(err);
+    }
+});
 
 module.exports = requestRouter;
