@@ -3,12 +3,17 @@ const { ValidationError } = require("../errors/error");
 
 const validateSignUpData = (req) => {
 
-    const { firstName, lastName, email, password } = req.body;
-    if (!firstName || !lastName) {
-        throw new ValidationError("Name is not valid!");
-    } else if (!validator.isEmail(email)) {
-        throw new ValidationError("Email is not valid!", "email", email);
-    } else if (!validator.isStrongPassword(password)) {
+    const { email, password } = req.body;
+    const minPasswordLength = 8;
+    const maxPasswordLength = 100;
+
+    if (!validator.isEmail(email)) {
+        throw new ValidationError("Email is not valid", "email", email);
+    }
+    else if (password.length < minPasswordLength || password.length > maxPasswordLength) {
+        throw new ValidationError(`Password length must be within [${minPasswordLength}, ${maxPasswordLength}]`);
+    }
+    else if (!validator.isStrongPassword(password)) {
         throw new ValidationError("Not a strong password", "password", password);
     }
 };

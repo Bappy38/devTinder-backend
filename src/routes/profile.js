@@ -1,7 +1,6 @@
 const express = require("express");
 const User = require("../models/user");
 const { userAuth } = require("../middlewares/auth");
-const { errorHandler } = require("../middlewares/error");
 const { validateEditProfileData } = require("../utils/validation");
 const { ValidationError } = require("../errors/error");
 const bcrypt = require("bcrypt");
@@ -15,7 +14,7 @@ profileRouter.get("/view", userAuth, async (req, res, next) => {
     } catch (err) {
         next(err);
     }
-}, errorHandler);
+});
 
 profileRouter.patch("/edit", userAuth, async (req, res, next) => {
     try {
@@ -38,7 +37,7 @@ profileRouter.patch("/edit", userAuth, async (req, res, next) => {
     } catch (err) {
         next(err);
     }
-}, errorHandler);
+});
 
 profileRouter.patch("/change-password", userAuth, async (req, res, next) => {
     try {
@@ -49,17 +48,17 @@ profileRouter.patch("/change-password", userAuth, async (req, res, next) => {
             throw new ValidationError("Current password is not correct");
         }
 
-        const passwordHash = await bcrypt.hash(newPassword, 10);
-        await user.save({
-            password: passwordHash
-        }, {
-            runValidators: true
-        });
+        const newPasswordHash = await bcrypt.hash(newPassword, 10);
+        user.password = newPasswordHash;
+        await user.save();
 
-        res.send("Password changed successfully");
+        res.status(200).json({
+            success: true,
+            message: "Password changed successfully"
+        });
     } catch(err) {
         next(err);
     }
-}, errorHandler);
+});
 
 module.exports = profileRouter;

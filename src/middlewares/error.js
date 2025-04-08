@@ -1,5 +1,4 @@
 const errorHandler = async (err, req, res, next) => {
-
     console.error("Error: ", err.stack || err.message || err);
 
     let statusCode = 500;

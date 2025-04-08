@@ -1,16 +1,14 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
-const {validateSignUpData} = require("../utils/validation");
 const { ValidationError } = require('../errors/error');
 const User = require("../models/user");
-const { errorHandler } = require("../middlewares/error");
+const { validateSignUpData } = require("../utils/validation");
 
 const authRouter = express.Router();
 
 authRouter.post("/signup", async (req, res, next) => {
     try {
         validateSignUpData(req);
-
         const { firstName, lastName, email, password } = req.body;
         const passwordHash = await bcrypt.hash(password, 10);
 
@@ -21,11 +19,19 @@ authRouter.post("/signup", async (req, res, next) => {
             password: passwordHash
         });
         await user.save();
-        res.status(201).send("User created successfully");
+
+        res.status(201).json({
+            success: true,
+            message: "User created successfully",
+            data: {
+                id: user._id,
+                email: user.email
+            }
+        });
     } catch (err) {
         next(err);
     }
-}, errorHandler);
+});
 
 authRouter.post("/signin", async (req, res, next) => {
     try {
@@ -48,7 +54,7 @@ authRouter.post("/signin", async (req, res, next) => {
     } catch (err) {
         next(err);
     }
-}, errorHandler);
+});
 
 authRouter.post("/logout", async (req, res, next) => {
     try {
@@ -58,6 +64,6 @@ authRouter.post("/logout", async (req, res, next) => {
     } catch (err) {
         next(err);
     }
-}, errorHandler);
+});
 
 module.exports = authRouter;

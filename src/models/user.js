@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
-const validator = require("validator");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const validator = require("validator");
 
 const userSchema = new mongoose.Schema({
     firstName: {
@@ -20,12 +20,7 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         trim: true,
         required: true,
-        maxLength: 100,
-        validate(value) {
-            if (!validator.isEmail(value)) {
-                throw new Error("Invalid email address: " + value)
-            }
-        }
+        maxLength: 100
     },
     password: {
         type: String,
@@ -33,22 +28,25 @@ const userSchema = new mongoose.Schema({
         maxLength: 100
     },
     dateOfBirth: {
-        type: Date,
-
+        type: Date
     },
     gender: {
         type: String,
-        validate: {
-            validator: function(value) {
-                const validGenders = ['male', 'female'];
-                return validGenders.includes(value);
-            },
-            message: "Gender is not valid"
-        }
+        enum: {
+            values: ["male", "female"],
+            message: `'{VALUE}' is not a valid gender`
+        },
     },
     photoUrl: {
         type: String,
-        default: 'http://xyz.com'
+        default: 'http://xyz.com',
+        maxLength: 100,
+        validate: {
+            validator: function(value) {
+                return validator.isURL(value);
+            },
+            message: "photoUrl is not valid"
+        }
     },
     skills: {
         type: [String],
