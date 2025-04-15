@@ -50,7 +50,15 @@ authRouter.post("/signin", async (req, res, next) => {
         res.cookie("accessToken", accessToken, {
             expires: new Date(Date.now() + Number(process.env.COOKIE_EXPIRES_IN_MS))
         });
-        res.status(201).send("Logged In Successfull");
+        res.status(200).json({
+            message: "Logged in successfull",
+            data: {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                photoUrl: user.photoUrl
+            }
+        });
     } catch (err) {
         next(err);
     }

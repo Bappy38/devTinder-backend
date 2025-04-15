@@ -2,6 +2,7 @@ const express = require('express');
 const connectDB = require("./config/database");
 require('dotenv').config();
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
@@ -23,6 +24,12 @@ connectDB()
         console.error("Server failed to start: " + err);
         process.exit(1);
     });
+
+const corsOptions = {
+    origin: "http://localhost:5173",
+    credentials: true
+};
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(cookieParser());
