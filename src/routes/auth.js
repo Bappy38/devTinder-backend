@@ -55,6 +55,7 @@ authRouter.post("/signin", async (req, res, next) => {
             data: {
                 firstName: user.firstName,
                 lastName: user.lastName,
+                about: user.about,
                 dateOfBirth: user.dateOfBirth,
                 gender: user.gender,
                 email: user.email,

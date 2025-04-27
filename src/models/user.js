@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema({
         required: true,
         maxLength: 100
     },
+    about: {
+        type: String,
+        maxLength: 500
+    },
     dateOfBirth: {
         type: Date
     },

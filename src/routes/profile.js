@@ -22,6 +22,7 @@ profileRouter.patch("/edit", userAuth, async (req, res, next) => {
         const updatedUser = await User.findByIdAndUpdate(req.userId, {
             firstName: req.body.firstName,
             lastName: req.body.lastName,
+            about: req.body.about,
             dateOfBirth: req.body.dateOfBirth,
             gender: req.body.gender,
             photoUrl: req.body.photoUrl,

@@ -76,7 +76,7 @@ userRouter.get("/feed", userAuth, async (req, res, next) => {
 
         const users = await User.find({
             _id: { $nin: Array.from(ignoreUsersFromFeed) }
-        }).select("firstName lastName photoUrl skills");
+        }).select("firstName lastName about photoUrl skills");
 
         res.json({
             sucess: true,
