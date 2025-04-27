@@ -78,7 +78,11 @@ userRouter.get("/feed", userAuth, async (req, res, next) => {
             _id: { $nin: Array.from(ignoreUsersFromFeed) }
         }).select("firstName lastName photoUrl skills");
 
-        res.send(users);
+        res.json({
+            sucess: true,
+            message: "Feed fetched successfully",
+            data: users
+        });
     } catch (err) {
         next(err);
     }

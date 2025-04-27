@@ -39,8 +39,8 @@ const userSchema = new mongoose.Schema({
     },
     photoUrl: {
         type: String,
-        default: 'http://xyz.com',
-        maxLength: 100,
+        default: 'https://www.treasury.gov.ph/wp-content/uploads/2022/01/male-placeholder-image.jpeg',
+        maxLength: 500,
         validate: {
             validator: function(value) {
                 return validator.isURL(value);

@@ -55,8 +55,11 @@ authRouter.post("/signin", async (req, res, next) => {
             data: {
                 firstName: user.firstName,
                 lastName: user.lastName,
+                dateOfBirth: user.dateOfBirth,
+                gender: user.gender,
                 email: user.email,
-                photoUrl: user.photoUrl
+                photoUrl: user.photoUrl,
+                skills: user.skills
             }
         });
     } catch (err) {

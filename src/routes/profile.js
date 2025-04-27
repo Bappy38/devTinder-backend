@@ -24,6 +24,7 @@ profileRouter.patch("/edit", userAuth, async (req, res, next) => {
             lastName: req.body.lastName,
             dateOfBirth: req.body.dateOfBirth,
             gender: req.body.gender,
+            photoUrl: req.body.photoUrl,
             skills: req.body.skills
         }, {
             runValidators: true,
