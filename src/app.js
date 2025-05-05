@@ -10,6 +10,8 @@ const { errorHandler } = require('./middlewares/error');
 const requestRouter = require('./routes/request');
 const userRouter = require('./routes/user');
 
+const { createOrUpdateTemplate } = require("./utils/createEmailTemplate");
+
 const app = express();
 
 const PORT = process.env.PORT || 3000;

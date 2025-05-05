@@ -4,6 +4,7 @@ const ConnectionRequest = require("../models/connectionRequest");
 const { ValidationError, NotFoundError } = require("../errors/error");
 const User = require("../models/user");
 const { validateSendConnectionRequestData, validateReviewConnectionRequestData } = require("../utils/validation");
+const { sendEmail } = require("../utils/sendEmail");
 
 const requestRouter = express.Router();
 
@@ -42,6 +43,13 @@ requestRouter.post("/send/:status/:toUserId", userAuth, async (req, res, next) =
             status
         });
         const data = await connectionRequest.save();
+
+        // TODO:: Will remove email sending from here
+        sendEmail("iqbal.bappy.13@gmail.com", "DailyRequestNotification", {
+            userName: toUser.firstName,
+            requestCount: 2,
+            ifMultiple: true
+        });
 
         res.status(201).json({
             message: "Connection Request Sent",
