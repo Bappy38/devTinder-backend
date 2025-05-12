@@ -1,6 +1,5 @@
 const express = require('express');
 const connectDB = require("./config/database");
-require('dotenv').config();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
@@ -11,6 +10,9 @@ const requestRouter = require('./routes/request');
 const userRouter = require('./routes/user');
 
 const { createOrUpdateTemplate } = require("./utils/createEmailTemplate");
+
+require('dotenv').config();
+require('./utils/cronjob');
 
 const app = express();
 
