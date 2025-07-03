@@ -86,6 +86,22 @@ userRouter.get("/feed", userAuth, async (req, res, next) => {
     } catch (err) {
         next(err);
     }
-})
+});
+
+userRouter.get("/:userId", userAuth, async (req, res, next) => {
+    try {
+        const userId = req.params.userId;
+        const user = await User.findById(userId)
+        .select("firstName lastName about photoUrl skills");
+
+        res.json({
+            success: true,
+            message: "User fetched successfully",
+            data: user
+        });
+    } catch (err) {
+        next(err);
+    }
+});
 
 module.exports = userRouter;
