@@ -2,6 +2,8 @@ const express = require('express');
 const connectDB = require("./config/database");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const { createServer } = require("node:http");
+const { Server } = require("socket.io");
 
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
@@ -10,17 +12,27 @@ const requestRouter = require('./routes/request');
 const userRouter = require('./routes/user');
 
 const { createOrUpdateTemplate } = require("./utils/createEmailTemplate");
+const socket = require('./utils/socket');
 
 require('dotenv').config();
 require('./utils/cronjob');
 
 const app = express();
+const server = createServer(app);
+
+const io = new Server(server, {
+    cors: {
+        origin: process.env.CORS_ORIGIN
+    }
+});
+
+socket(io);
 
 const PORT = process.env.PORT || 3000;
 
 connectDB()
     .then(() => {
-        app.listen(PORT, () => {
+        server.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);
         });
     })
