@@ -1,5 +1,6 @@
 const cookie = require('cookie');
 const jwt = require("jsonwebtoken");
+const ConnectionRequest = require('../models/connectionRequest');
 
 module.exports = (io) => {
 
@@ -30,17 +31,37 @@ module.exports = (io) => {
         }
     });
 
-    io.on('connection', (socket) => {
+    io.on('connection', async (socket) => {
 
         console.log('User connected: ', socket.userId);
 
-        socket.on('joinRoom', (roomId) => {
-            socket.join(roomId);
-            console.log(`User ${socket.userId} joined room ${roomId}`);
+        socket.on('joinRoom', async (roomId) => {
+
+            const connection = await ConnectionRequest.findById(roomId);
+            const isAuthorized = connection && (connection.fromUserId.toString() === socket.userId || connection.toUserId.toString() === socket.userId);
+            
+            if (isAuthorized) {
+                socket.join(roomId);
+                console.log(`User ${socket.userId} joined room ${roomId}`);
+            }
+            else {
+                console.warn(`User ${socket.userId} tried to join room ${roomId} they don't belong to`);
+                socket.disconnect();
+            }
         });
 
-        socket.on('sendMessage', ({roomId, message}) => {
-            io.to(roomId).emit('receiveMessage', message);
+        socket.on('sendMessage', async ({roomId, message}) => {
+
+            const connection = await ConnectionRequest.findById(roomId);
+            const isAuthorized = connection && (connection.fromUserId.toString() === socket.userId || connection.toUserId.toString() === socket.userId);
+            
+            if (isAuthorized) {
+                io.to(roomId).emit('receiveMessage', message);
+            }
+            else {
+                console.warn(`User ${socket.userId} tried to send message to room ${roomId} they don't belong to`);
+                socket.disconnect();
+            }
         });
 
         socket.on('disconnect', () => {
