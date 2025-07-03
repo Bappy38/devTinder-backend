@@ -41,9 +41,15 @@ userRouter.get("/connection", userAuth, async (req, res, next) => {
 
         const data = connections.map((connection) => {
             if (connection.fromUserId._id.toString() === loggedInUserId) {
-                return connection.toUserId;
+                return {
+                    _id: connection._id,
+                    user: connection.toUserId
+                };
             }
-            return connection.fromUserId;
+            return {
+                _id: connection._id,
+                user: connection.fromUserId
+            };
         });
 
         res.status(200).json({
@@ -88,16 +94,30 @@ userRouter.get("/feed", userAuth, async (req, res, next) => {
     }
 });
 
-userRouter.get("/:userId", userAuth, async (req, res, next) => {
+userRouter.get("/connection/:connectionId", userAuth, async (req, res, next) => {
     try {
-        const userId = req.params.userId;
-        const user = await User.findById(userId)
-        .select("firstName lastName about photoUrl skills");
+        const loggedInUserId = req.userId;
+        const connectionId = req.params.connectionId;
 
-        res.json({
+        const connection = await ConnectionRequest.findById(connectionId)
+            .populate('fromUserId', [ 'firstName', 'lastName', 'about', 'dateOfBirth', 'gender', 'photoUrl', 'skills' ])
+            .populate('toUserId', [ 'firstName', 'lastName', 'about', 'dateOfBirth', 'gender', 'photoUrl', 'skills' ]);
+
+        const data = (connection.fromUserId._id.toString() === loggedInUserId)? 
+            {
+                _id: connection._id,
+                user: connection.toUserId
+            }
+            :
+            {
+                _id: connection._id,
+                user: connection.fromUserId
+            };
+
+        res.status(200).json({
             success: true,
-            message: "User fetched successfully",
-            data: user
+            message: "Connection fetched successfully",
+            data: data
         });
     } catch (err) {
         next(err);
