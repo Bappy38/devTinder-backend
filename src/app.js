@@ -14,6 +14,7 @@ const authRouter = require('./routes/authRoutes');
 const profileRouter = require('./routes/profileRoutes');
 const requestRouter = require('./routes/requestRoutes');
 const userRouter = require('./routes/userRoutes');
+const messageRouter = require('./routes/messageRoutes');
 
 require('dotenv').config();
 require('./utils/cronjob');
@@ -56,5 +57,6 @@ app.use("/auth", authRouter);
 app.use("/profile", profileRouter);
 app.use("/request", requestRouter);
 app.use("/user", userRouter);
+app.use("/message", messageRouter);
 
 app.use(errorHandler);
