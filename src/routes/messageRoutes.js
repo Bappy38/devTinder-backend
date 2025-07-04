@@ -9,8 +9,6 @@ messageRouter.get("/:roomId", userAuth, async (req, res, next) => {
         const { roomId } = req.params;
         const { cursor, limit = 20 } = req.query;
 
-        console.log(roomId, cursor, limit);
-
         const query = {
             roomId: roomId
         };
@@ -25,7 +23,7 @@ messageRouter.get("/:roomId", userAuth, async (req, res, next) => {
 
         res.json({
             success: true,
-            data: messages,
+            messages,
             nextCursor: messages.length ? messages.at(-1)._id : null
         });
     } catch (err) {

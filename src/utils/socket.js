@@ -50,7 +50,7 @@ module.exports = (io) => {
             console.log(`User ${socket.userId} joined room ${roomId}`);
         });
 
-        socket.on('sendMessage', async ({roomId, message}) => {
+        socket.on('sendMessage', async ({roomId, text}) => {
 
             try {
                 const connection = await ConnectionRequest.findById(roomId);
@@ -64,7 +64,7 @@ module.exports = (io) => {
                 const newMessage = new Message({
                     roomId,
                     senderId: socket.userId,
-                    text: message.text
+                    text
                 });
                 const data = await newMessage.save();
                 
