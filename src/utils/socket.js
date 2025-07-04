@@ -1,6 +1,7 @@
 const cookie = require('cookie');
 const jwt = require("jsonwebtoken");
 const ConnectionRequest = require('../models/connectionRequest');
+const Message = require('../models/message');
 
 module.exports = (io) => {
 
@@ -51,15 +52,26 @@ module.exports = (io) => {
 
         socket.on('sendMessage', async ({roomId, message}) => {
 
-            const connection = await ConnectionRequest.findById(roomId);
-            const isAuthorized = connection && (connection.fromUserId.toString() === socket.userId || connection.toUserId.toString() === socket.userId);
+            try {
+                const connection = await ConnectionRequest.findById(roomId);
+                const isAuthorized = connection && (connection.fromUserId.toString() === socket.userId || connection.toUserId.toString() === socket.userId);
 
-            if (!isAuthorized) {
-                socket.disconnect();
-                return;
+                if (!isAuthorized) {
+                    socket.disconnect();
+                    return;
+                }
+
+                const newMessage = new Message({
+                    roomId,
+                    senderId: socket.userId,
+                    text: message.text
+                });
+                const data = await newMessage.save();
+                
+                io.to(roomId).emit('receiveMessage', data);
+            } catch (err) {
+                console.error('Error occured while sending message: ', err);
             }
-            
-            io.to(roomId).emit('receiveMessage', message);
         });
 
         socket.on('disconnect', () => {
