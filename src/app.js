@@ -5,14 +5,15 @@ const cors = require("cors");
 const { createServer } = require("node:http");
 const { Server } = require("socket.io");
 
-const authRouter = require("./routes/auth");
-const profileRouter = require("./routes/profile");
 const { errorHandler } = require('./middlewares/error');
-const requestRouter = require('./routes/request');
-const userRouter = require('./routes/user');
 
 const { createOrUpdateTemplate } = require("./utils/createEmailTemplate");
 const socket = require('./utils/socket');
+
+const authRouter = require('./routes/authRoutes');
+const profileRouter = require('./routes/profileRoutes');
+const requestRouter = require('./routes/requestRoutes');
+const userRouter = require('./routes/userRoutes');
 
 require('dotenv').config();
 require('./utils/cronjob');
