@@ -20,11 +20,12 @@ messageRouter.get("/:roomId", userAuth, async (req, res, next) => {
         const messages = await Message.find(query)
             .sort({ _id: -1 })
             .limit(parseInt(limit, 10));
+        const reversedMessages = messages.reverse();
 
         res.json({
             success: true,
-            messages,
-            nextCursor: messages.length ? messages.at(-1)._id : null
+            messages: reversedMessages,
+            nextCursor: messages.length ? messages.at(0)._id : null
         });
     } catch (err) {
         next(err);
