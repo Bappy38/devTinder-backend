@@ -100,8 +100,8 @@ userRouter.get("/connection/:connectionId", userAuth, async (req, res, next) => 
         const connectionId = req.params.connectionId;
 
         const connection = await ConnectionRequest.findById(connectionId)
-            .populate('fromUserId', [ 'firstName', 'lastName', 'about', 'dateOfBirth', 'gender', 'photoUrl', 'skills' ])
-            .populate('toUserId', [ 'firstName', 'lastName', 'about', 'dateOfBirth', 'gender', 'photoUrl', 'skills' ]);
+            .populate('fromUserId', [ 'firstName', 'lastName', 'about', 'dateOfBirth', 'gender', 'photoUrl', 'skills', 'lastSeen' ])
+            .populate('toUserId', [ 'firstName', 'lastName', 'about', 'dateOfBirth', 'gender', 'photoUrl', 'skills', 'lastSeen' ]);
 
         const data = (connection.fromUserId._id.toString() === loggedInUserId)? 
             {
