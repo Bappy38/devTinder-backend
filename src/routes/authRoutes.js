@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const { ValidationError } = require('../errors/error');
 const User = require("../models/user");
 const { validateSignUpData } = require("../utils/validation");
-const { userPublicFields } = require("../constants/projections");
+const { sendSuccessResponse } = require("../utils/response");
 
 const authRouter = express.Router();
 
@@ -21,8 +21,8 @@ authRouter.post("/signup", async (req, res, next) => {
         });
         await user.save();
 
-        res.status(201).json({
-            success: true,
+        sendSuccessResponse(res, {
+            status: 201,
             message: "User created successfully",
             data: {
                 id: user._id,
@@ -51,7 +51,7 @@ authRouter.post("/signin", async (req, res, next) => {
         res.cookie("accessToken", accessToken, {
             expires: new Date(Date.now() + Number(process.env.COOKIE_EXPIRES_IN_MS))
         });
-        res.status(200).json({
+        sendSuccessResponse(res, {
             message: "Logged in successfull",
             data: {
                 _id: user._id,

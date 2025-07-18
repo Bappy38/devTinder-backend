@@ -2,6 +2,7 @@ const express = require("express");
 const { userAuth } = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
+const { sendSuccessResponse } = require("../utils/response");
 
 const userRouter = express.Router();
 
@@ -13,8 +14,7 @@ userRouter.get("/request/received", userAuth, async (req, res, next) => {
             status: "interested"
         }).populate('fromUserId', [ 'firstName', 'lastName', 'about', 'dateOfBirth', 'gender', 'photoUrl', 'skills' ]);
 
-        res.status(200).json({
-            success: true,
+        sendSuccessResponse(res, {
             message: "Connection request fetched successfully",
             data: connectionRequests
         });
@@ -52,8 +52,7 @@ userRouter.get("/connection", userAuth, async (req, res, next) => {
             };
         });
 
-        res.status(200).json({
-            success: true,
+        sendSuccessResponse(res, {
             message: "Connection request fetched successfully",
             data: data
         });
@@ -84,8 +83,7 @@ userRouter.get("/feed", userAuth, async (req, res, next) => {
             _id: { $nin: Array.from(ignoreUsersFromFeed) }
         }).select("firstName lastName about photoUrl skills");
 
-        res.json({
-            sucess: true,
+        sendSuccessResponse(res, {
             message: "Feed fetched successfully",
             data: users
         });
@@ -114,8 +112,7 @@ userRouter.get("/connection/:connectionId", userAuth, async (req, res, next) => 
                 user: connection.fromUserId
             };
 
-        res.status(200).json({
-            success: true,
+        sendSuccessResponse(res, {
             message: "Connection fetched successfully",
             data: data
         });
