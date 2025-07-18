@@ -2,6 +2,7 @@ const cookie = require('cookie');
 const jwt = require("jsonwebtoken");
 const ConnectionRequest = require('../models/connectionRequest');
 const Message = require('../models/message');
+const User = require('../models/user');
 
 module.exports = (io) => {
 
@@ -35,6 +36,19 @@ module.exports = (io) => {
     io.on('connection', async (socket) => {
 
         console.log('User connected: ', socket.userId);
+        try {
+            await User.findByIdAndUpdate(socket.userId, { lastSeen: new Date() });
+        } catch (err) {
+            console.error('Error updating lastSeen on connect:', err);
+        }
+
+        socket.on('heartbeat', async () => {
+            try {
+                await User.findByIdAndUpdate(socket.userId, { lastSeen: new Date() });
+            } catch (err) {
+                console.error('Error updating lastSeen on heartbeat:', err);
+            }
+        });
 
         socket.on('joinRoom', async (roomId) => {
 
@@ -75,6 +89,8 @@ module.exports = (io) => {
         });
 
         socket.on('disconnect', () => {
+            User.findByIdAndUpdate(socket.userId, { lastSeen: new Date() })
+                .catch(err => console.error('Error updating lastSeen on disconnect:', err));
             console.log('User disconnected: ', socket.userId);
         });
     });

@@ -4,13 +4,21 @@ const { userAuth } = require("../middlewares/auth");
 const { validateEditProfileData } = require("../utils/validation");
 const { ValidationError } = require("../errors/error");
 const bcrypt = require("bcrypt");
+const { userPublicFields } = require("../constants/projections");
+const { sendSuccessResponse } = require("../utils/response");
 
 const profileRouter = express.Router();
 
 profileRouter.get("/view", userAuth, async (req, res, next) => {
     try {
-        const user = await User.findById(req.userId);
-        res.send(user);
+        const user = await User
+            .findById(req.userId)
+            .select(userPublicFields);
+
+        sendSuccessResponse(res, {
+            message: "Profile fetched successfully",
+            data: user
+        });
     } catch (err) {
         next(err);
     }
@@ -32,7 +40,7 @@ profileRouter.patch("/edit", userAuth, async (req, res, next) => {
             returnDocument: "after"
         });
 
-        res.json({
+        sendSuccessResponse(res, {
             message: "Profile updated successfully",
             data: updatedUser
         });
@@ -54,8 +62,7 @@ profileRouter.patch("/change-password", userAuth, async (req, res, next) => {
         user.password = newPasswordHash;
         await user.save();
 
-        res.status(200).json({
-            success: true,
+        sendSuccessResponse(res, {
             message: "Password changed successfully"
         });
     } catch(err) {

@@ -60,6 +60,10 @@ const userSchema = new mongoose.Schema({
             },
             message: "skills cannot be more than 3"
         }
+    },
+    lastSeen: {
+        type: Date,
+        default: Date.now
     }
 },
 {

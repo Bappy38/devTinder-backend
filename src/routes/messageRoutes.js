@@ -1,6 +1,7 @@
 const express = require("express");
 const { userAuth } = require("../middlewares/auth");
 const Message = require("../models/message");
+const { sendSuccessResponse } = require("../utils/response");
 
 const messageRouter = express.Router();
 
@@ -22,10 +23,12 @@ messageRouter.get("/:roomId", userAuth, async (req, res, next) => {
             .limit(parseInt(limit, 10));
         const reversedMessages = messages.reverse();
 
-        res.json({
-            success: true,
-            messages: reversedMessages,
-            nextCursor: messages.length ? messages.at(0)._id : null
+        sendSuccessResponse(res, {
+            message: "Messages fetched successfully",
+            data: {
+                messages: reversedMessages,
+                nextCursor: messages.length ? messages.at(0)._id : null
+            }
         });
     } catch (err) {
         next(err);
