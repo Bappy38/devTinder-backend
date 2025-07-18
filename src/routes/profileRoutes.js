@@ -4,12 +4,16 @@ const { userAuth } = require("../middlewares/auth");
 const { validateEditProfileData } = require("../utils/validation");
 const { ValidationError } = require("../errors/error");
 const bcrypt = require("bcrypt");
+const { userPublicFields } = require("../constants/projections");
 
 const profileRouter = express.Router();
 
 profileRouter.get("/view", userAuth, async (req, res, next) => {
     try {
-        const user = await User.findById(req.userId);
+        const user = await User
+            .findById(req.userId)
+            .select(userPublicFields);
+            
         res.send(user);
     } catch (err) {
         next(err);
