@@ -36,11 +36,6 @@ module.exports = (io) => {
     io.on('connection', async (socket) => {
 
         console.log('User connected: ', socket.userId);
-        try {
-            await User.findByIdAndUpdate(socket.userId, { lastSeen: new Date() });
-        } catch (err) {
-            console.error('Error updating lastSeen on connect:', err);
-        }
 
         socket.on('heartbeat', async () => {
             try {
