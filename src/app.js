@@ -8,13 +8,13 @@ const { Server } = require("socket.io");
 const { errorHandler } = require('./middlewares/error');
 
 const { createOrUpdateTemplate } = require("./utils/createEmailTemplate");
-const socket = require('./utils/socket');
 
 const authRouter = require('./routes/authRoutes');
 const profileRouter = require('./routes/profileRoutes');
 const requestRouter = require('./routes/requestRoutes');
 const userRouter = require('./routes/userRoutes');
 const messageRouter = require('./routes/messageRoutes');
+const connectSocket = require('./utils/socket');
 
 require('dotenv').config();
 require('./utils/cronjob');
@@ -22,14 +22,14 @@ require('./utils/cronjob');
 const app = express();
 const server = createServer(app);
 
-const io = new Server(server, {
-    cors: {
-        origin: process.env.CORS_ORIGIN,
-        credentials: true
-    }
-});
-
-socket(io);
+connectSocket(server)
+    .then(() => {
+        console.log('Socket.IO connected successfully');
+    })
+    .catch((err) => {   
+        console.error('Socket.IO connection error:', err);
+        process.exit(1);
+    });
 
 const PORT = process.env.PORT || 3000;
 

@@ -3,8 +3,34 @@ const jwt = require("jsonwebtoken");
 const ConnectionRequest = require('../models/connectionRequest');
 const Message = require('../models/message');
 const User = require('../models/user');
+const { Server } = require('socket.io');
+const { createAdapter } = require('@socket.io/redis-streams-adapter');
+const { createClient } = require('redis');
 
-module.exports = (io) => {
+const connectSocket = async (server) => {
+    try {
+        const redisUrl = process.env.REDIS_CONNECTION;
+
+        const redisClient = createClient({ url: redisUrl });
+        await redisClient.connect();
+
+        const io = new Server(server, {
+            cors: {
+                origin: process.env.CORS_ORIGIN,
+                credentials: true
+            }
+        });
+        io.adapter = createAdapter(redisClient);
+
+        addSocketRoutes(io);
+    }
+    catch (err) {
+        console.error('Error setting up socket:', err);
+        process.exit(1);
+    }
+};
+
+const addSocketRoutes = (io) => {
 
     io.use((socket, next) => {
 
@@ -90,3 +116,5 @@ module.exports = (io) => {
         });
     });
 };
+
+module.exports = connectSocket;
