@@ -1,5 +1,6 @@
 const { RateLimiterRedis } = require("rate-limiter-flexible");
 const redisClient = require("../config/redisClient");
+const { sendErrorResponse } = require("../utils/response");
 
 
 const limiter = new RateLimiterRedis({
@@ -11,7 +12,7 @@ const limiter = new RateLimiterRedis({
 
 const apiRateLimiter = async (req, res, next) => {
     try {
-        await limiter.consume(req.ip);
+        await limiter.consume(req.userId || req.ip);
         next();
     } catch (err) {
         sendErrorResponse(res, {

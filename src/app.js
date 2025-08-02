@@ -16,6 +16,7 @@ const messageRouter = require('./routes/messageRoutes');
 const connectSocket = require('./utils/socket');
 const authRateLimiter = require('./middlewares/authRateLimiter');
 const apiRateLimiter = require('./middlewares/apiRateLimiter');
+const { connectRedis } = require('./config/redisClient');
 
 require('dotenv').config();
 require('./utils/cronjob');
@@ -45,6 +46,8 @@ const PORT = process.env.PORT || 3000;
 
 connectDB()
     .then(() => {
+        return connectRedis();
+    }).then(() => {
         return connectSocket(server);
     })
     .then(() => {
