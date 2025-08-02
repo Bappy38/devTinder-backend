@@ -6,7 +6,6 @@ const User = require('../models/user');
 const { Server } = require('socket.io');
 const { createAdapter } = require('@socket.io/redis-adapter');
 const { createClient } = require('redis');
-const { NotAuthorizedError } = require('../errors/error');
 
 const connectSocket = async (server) => {
     try {
