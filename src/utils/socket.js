@@ -6,6 +6,7 @@ const User = require('../models/user');
 const { Server } = require('socket.io');
 const { createAdapter } = require('@socket.io/redis-adapter');
 const { createClient } = require('redis');
+const { NotAuthorizedError } = require('../errors/error');
 
 const connectSocket = async (server) => {
     try {
@@ -80,29 +81,33 @@ const addSocketRoutes = (io) => {
             }
         });
 
-        socket.on('joinRoom', async (roomId) => {
+        socket.on('joinRoom', async ({roomId}, callback) => {
 
             const connection = await ConnectionRequest.findById(roomId);
             const isAuthorized = connection && (connection.fromUserId.toString() === socket.userId || connection.toUserId.toString() === socket.userId);
             
             if (!isAuthorized) {
-                socket.disconnect();
-                return;
+                console.log(`Unauthorized join attempt by user ${socket.userId} in room ${roomId}`);
+                return callback({
+                    unAuthorized: true
+                });
             }
             
             socket.join(roomId);
             console.log(`User ${socket.userId} joined room ${roomId}`);
+            return callback({ success: true });
         });
 
-        socket.on('sendMessage', async ({roomId, text}) => {
+        socket.on('sendMessage', async ({roomId, text}, callback) => {
 
             try {
                 const connection = await ConnectionRequest.findById(roomId);
                 const isAuthorized = connection && (connection.fromUserId.toString() === socket.userId || connection.toUserId.toString() === socket.userId);
 
                 if (!isAuthorized) {
-                    socket.disconnect();
-                    return;
+                    return callback({
+                        error: 'You are not authorized to send messages in this room'
+                    });
                 }
 
                 const newMessage = new Message({
@@ -113,8 +118,12 @@ const addSocketRoutes = (io) => {
                 const data = await newMessage.save();
                 
                 io.to(roomId).emit('receiveMessage', data);
+                return callback({ success: true });
             } catch (err) {
                 console.error('Error occured while sending message: ', err);
+                return callback({
+                    error: 'Something went wrong while sending the message'
+                });
             }
         });
 

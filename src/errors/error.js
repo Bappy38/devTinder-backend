@@ -18,7 +18,17 @@ class NotFoundError extends Error {
     }
 }
 
+class NotAuthorizedError extends Error {
+    constructor(message = 'Not authorized to perform this action') {
+        super(message);
+
+        this.name = "HandledError";
+        this.statusCode = 403;
+    }
+}
+
 module.exports = {
     ValidationError,
-    NotFoundError
+    NotFoundError,
+    NotAuthorizedError
 };
