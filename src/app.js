@@ -14,6 +14,8 @@ const requestRouter = require('./routes/requestRoutes');
 const userRouter = require('./routes/userRoutes');
 const messageRouter = require('./routes/messageRoutes');
 const connectSocket = require('./utils/socket');
+const authRateLimiter = require('./middlewares/authRateLimiter');
+const apiRateLimiter = require('./middlewares/apiRateLimiter');
 
 require('dotenv').config();
 require('./utils/cronjob');
@@ -29,11 +31,11 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/auth", authRouter);
-app.use("/profile", profileRouter);
-app.use("/request", requestRouter);
-app.use("/user", userRouter);
-app.use("/message", messageRouter);
+app.use("/auth", authRateLimiter, authRouter);
+app.use("/profile", apiRateLimiter, profileRouter);
+app.use("/request", apiRateLimiter, requestRouter);
+app.use("/user", apiRateLimiter, userRouter);
+app.use("/message", apiRateLimiter, messageRouter);
 
 app.use(errorHandler);
 
