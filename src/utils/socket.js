@@ -3,8 +3,43 @@ const jwt = require("jsonwebtoken");
 const ConnectionRequest = require('../models/connectionRequest');
 const Message = require('../models/message');
 const User = require('../models/user');
+const { Server } = require('socket.io');
+const { createAdapter } = require('@socket.io/redis-adapter');
+const { createClient } = require('redis');
 
-module.exports = (io) => {
+const connectSocket = async (server) => {
+    try {
+        const redisUrl = process.env.REDIS_CONNECTION;
+
+        const pubClient = createClient({
+            url: redisUrl
+        });
+        const subClient = pubClient.duplicate();
+
+        await Promise.all([
+            pubClient.connect(),
+            subClient.connect()
+        ]);
+
+        const io = new Server(server, {
+            adapter: createAdapter(pubClient, subClient),
+            cors: {
+                origin: process.env.CORS_ORIGIN,
+                credentials: true
+            }
+        });
+        console.log('Current adapter:', io.of('/').adapter.constructor.name);
+        console.log('Socket.IO connected');
+
+        addSocketRoutes(io);
+    }
+    catch (err) {
+        console.error('Error setting up socket:', err);
+        throw err;
+    }
+};
+
+const addSocketRoutes = (io) => {
 
     io.use((socket, next) => {
 
@@ -36,11 +71,6 @@ module.exports = (io) => {
     io.on('connection', async (socket) => {
 
         console.log('User connected: ', socket.userId);
-        try {
-            await User.findByIdAndUpdate(socket.userId, { lastSeen: new Date() });
-        } catch (err) {
-            console.error('Error updating lastSeen on connect:', err);
-        }
 
         socket.on('heartbeat', async () => {
             try {
@@ -95,3 +125,5 @@ module.exports = (io) => {
         });
     });
 };
+
+module.exports = connectSocket;

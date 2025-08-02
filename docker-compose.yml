@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - devTinder-net
+
+  backend1:
+    build: .
+    environment:
+      - MONGO_CONNECTION=
+      - PORT=3000
+      - SECRET_KEY=abcde
+      - TOKEN_EXPIRES_IN=1h
+      - COOKIE_EXPIRES_IN_MS=3600000
+      - CORS_ORIGIN=http://localhost:5000
+      - REDIS_CONNECTION=redis://redis:6379
+    depends_on:
+      - redis
+    ports:
+      - "3000:3000"
+    networks:
+      - devTinder-net
+
+  backend2:
+    build: .
+    environment:
+      - MONGO_CONNECTION=
+      - PORT=3001
+      - SECRET_KEY=abcde
+      - TOKEN_EXPIRES_IN=1h
+      - COOKIE_EXPIRES_IN_MS=3600000
+      - CORS_ORIGIN=http://localhost:5001
+      - REDIS_CONNECTION=redis://redis:6379
+    depends_on:
+      - redis
+    ports:
+      - "3001:3001"
+    networks:
+      - devTinder-net
+
+networks:
+  devTinder-net:
+    driver: bridge
