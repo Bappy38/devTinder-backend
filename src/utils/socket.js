@@ -4,29 +4,38 @@ const ConnectionRequest = require('../models/connectionRequest');
 const Message = require('../models/message');
 const User = require('../models/user');
 const { Server } = require('socket.io');
-const { createAdapter } = require('@socket.io/redis-streams-adapter');
+const { createAdapter } = require('@socket.io/redis-adapter');
 const { createClient } = require('redis');
 
 const connectSocket = async (server) => {
     try {
         const redisUrl = process.env.REDIS_CONNECTION;
 
-        const redisClient = createClient({ url: redisUrl });
-        await redisClient.connect();
+        const pubClient = createClient({
+            url: redisUrl
+        });
+        const subClient = pubClient.duplicate();
+
+        await Promise.all([
+            pubClient.connect(),
+            subClient.connect()
+        ]);
 
         const io = new Server(server, {
+            adapter: createAdapter(pubClient, subClient),
             cors: {
                 origin: process.env.CORS_ORIGIN,
                 credentials: true
             }
         });
-        io.adapter = createAdapter(redisClient);
+        console.log('Current adapter:', io.of('/').adapter.constructor.name);
+        console.log('Socket.IO connected');
 
         addSocketRoutes(io);
     }
     catch (err) {
         console.error('Error setting up socket:', err);
-        process.exit(1);
+        throw err;
     }
 };
 

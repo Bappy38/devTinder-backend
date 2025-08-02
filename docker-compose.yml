@@ -11,7 +11,13 @@ services:
   backend1:
     build: .
     environment:
-      
+      - MONGO_CONNECTION=
+      - PORT=3000
+      - SECRET_KEY=abcde
+      - TOKEN_EXPIRES_IN=1h
+      - COOKIE_EXPIRES_IN_MS=3600000
+      - CORS_ORIGIN=http://localhost:5000
+      - REDIS_CONNECTION=redis://redis:6379
     depends_on:
       - redis
     ports:
@@ -22,7 +28,13 @@ services:
   backend2:
     build: .
     environment:
-      
+      - MONGO_CONNECTION=
+      - PORT=3001
+      - SECRET_KEY=abcde
+      - TOKEN_EXPIRES_IN=1h
+      - COOKIE_EXPIRES_IN_MS=3600000
+      - CORS_ORIGIN=http://localhost:5001
+      - REDIS_CONNECTION=redis://redis:6379
     depends_on:
       - redis
     ports:
