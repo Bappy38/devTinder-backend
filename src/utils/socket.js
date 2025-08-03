@@ -7,6 +7,7 @@ const { createClient } = require('redis');
 const socketAuth = require('../middlewares/socketAuth');
 const { RateLimiterRedis, RateLimiterRes } = require('rate-limiter-flexible');
 const redisClient = require("../config/redisClient");
+const allowedOrigins = require('../config/corsConfigs');
 
 const chatRateLimiter = new RateLimiterRedis({
     storeClient: redisClient,
@@ -33,7 +34,13 @@ const connectSocket = async (server) => {
         const io = new Server(server, {
             adapter: createAdapter(pubClient, subClient),
             cors: {
-                origin: process.env.CORS_ORIGIN,
+                origin: (origin, callback) => {
+                    if (!origin || allowedOrigins.includes(origin)) {
+                        callback(null, true);
+                    } else {
+                        callback(new Error('CORS policy violation: Origin not allowed'));
+                    }
+                },
                 credentials: true
             }
         });

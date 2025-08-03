@@ -14,7 +14,13 @@ require('dotenv').config();
 const app = express();
 
 const corsOptions = {
-    origin: process.env.CORS_ORIGIN,
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('CORS policy violation: Origin not allowed'));
+        }
+    },
     credentials: true
 };
 app.use(cors(corsOptions));
@@ -33,6 +39,7 @@ const profileRouter = require('./routes/profileRoutes');
 const requestRouter = require('./routes/requestRoutes');
 const userRouter = require('./routes/userRoutes');
 const messageRouter = require('./routes/messageRoutes');
+const allowedOrigins = require('./config/corsConfigs');
 
 app.use("/auth", authRateLimiter, authRouter);
 app.use("/profile", apiAuth, apiRateLimiter, profileRouter);
