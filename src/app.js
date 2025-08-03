@@ -8,19 +8,8 @@ const { errorHandler } = require('./middlewares/errorHandler');
 
 const { createOrUpdateTemplate } = require("./utils/createEmailTemplate");
 
-const authRouter = require('./routes/authRoutes');
-const profileRouter = require('./routes/profileRoutes');
-const requestRouter = require('./routes/requestRoutes');
-const userRouter = require('./routes/userRoutes');
-const messageRouter = require('./routes/messageRoutes');
-const connectSocket = require('./utils/socket');
-const authRateLimiter = require('./middlewares/authRateLimiter');
-const apiRateLimiter = require('./middlewares/apiRateLimiter');
-const { apiAuth } = require('./middlewares/apiAuth');
-
 require('dotenv').config();
-require('./utils/cronjob');
-require('./config/redisClient');
+// require('./utils/cronjob');
 
 const app = express();
 
@@ -32,6 +21,18 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(cookieParser());
+
+require('./config/redisClient');
+const connectSocket = require('./utils/socket');
+const authRateLimiter = require('./middlewares/authRateLimiter');
+const apiRateLimiter = require('./middlewares/apiRateLimiter');
+const { apiAuth } = require('./middlewares/apiAuth');
+
+const authRouter = require('./routes/authRoutes');
+const profileRouter = require('./routes/profileRoutes');
+const requestRouter = require('./routes/requestRoutes');
+const userRouter = require('./routes/userRoutes');
+const messageRouter = require('./routes/messageRoutes');
 
 app.use("/auth", authRateLimiter, authRouter);
 app.use("/profile", apiAuth, apiRateLimiter, profileRouter);
