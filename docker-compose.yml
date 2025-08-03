@@ -18,6 +18,13 @@ services:
       - COOKIE_EXPIRES_IN_MS=3600000
       - CORS_ORIGIN=http://localhost:5000
       - REDIS_CONNECTION=redis://redis:6379
+      - AUTH_LIMITER_POINTS=5
+      - AUTH_LIMITER_DURATION=60*5
+      - AUTH_LIMITER_BLOCK_DURATION=60*10
+      - API_LIMITER_POINTS=20
+      - API_LIMITER_DURATION=60
+      - CHAT_LIMITER_POINTS=10
+      - CHAT_LIMITER_DURATION=60
     depends_on:
       - redis
     ports:
@@ -35,6 +42,13 @@ services:
       - COOKIE_EXPIRES_IN_MS=3600000
       - CORS_ORIGIN=http://localhost:5001
       - REDIS_CONNECTION=redis://redis:6379
+      - AUTH_LIMITER_POINTS=5
+      - AUTH_LIMITER_DURATION=60*5
+      - AUTH_LIMITER_BLOCK_DURATION=60*10
+      - API_LIMITER_POINTS=20
+      - API_LIMITER_DURATION=60
+      - CHAT_LIMITER_POINTS=10
+      - CHAT_LIMITER_DURATION=60
     depends_on:
       - redis
     ports:
