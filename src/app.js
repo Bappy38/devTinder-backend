@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const connectDB = require("./config/database");
 const cookieParser = require("cookie-parser");
@@ -8,7 +10,6 @@ const { errorHandler } = require('./middlewares/errorHandler');
 
 const { createOrUpdateTemplate } = require("./utils/createEmailTemplate");
 
-require('dotenv').config();
 // require('./utils/cronjob');
 
 const app = express();
