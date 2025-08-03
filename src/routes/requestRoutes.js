@@ -1,5 +1,4 @@
 const express = require("express");
-const { userAuth } = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const { ValidationError, NotFoundError } = require("../errors/error");
 const User = require("../models/user");
@@ -7,7 +6,7 @@ const { validateSendConnectionRequestData, validateReviewConnectionRequestData }
 
 const requestRouter = express.Router();
 
-requestRouter.post("/send/:status/:toUserId", userAuth, async (req, res, next) => {
+requestRouter.post("/send/:status/:toUserId", async (req, res, next) => {
     try {
         validateSendConnectionRequestData(req);
 
@@ -52,7 +51,7 @@ requestRouter.post("/send/:status/:toUserId", userAuth, async (req, res, next) =
     }
 });
 
-requestRouter.post("/review/:status/:requestId", userAuth, async (req, res, next) => {
+requestRouter.post("/review/:status/:requestId", async (req, res, next) => {
     try {
         validateReviewConnectionRequestData(req);
 

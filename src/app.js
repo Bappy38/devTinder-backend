@@ -16,10 +16,11 @@ const messageRouter = require('./routes/messageRoutes');
 const connectSocket = require('./utils/socket');
 const authRateLimiter = require('./middlewares/authRateLimiter');
 const apiRateLimiter = require('./middlewares/apiRateLimiter');
-const { connectRedis } = require('./config/redisClient');
+const { userAuth } = require('./middlewares/auth');
 
 require('dotenv').config();
 require('./utils/cronjob');
+require('./config/redisClient');
 
 const app = express();
 
@@ -33,10 +34,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/auth", authRateLimiter, authRouter);
-app.use("/profile", apiRateLimiter, profileRouter);
-app.use("/request", apiRateLimiter, requestRouter);
-app.use("/user", apiRateLimiter, userRouter);
-app.use("/message", apiRateLimiter, messageRouter);
+app.use("/profile", userAuth, apiRateLimiter, profileRouter);
+app.use("/request", userAuth, apiRateLimiter, requestRouter);
+app.use("/user", userAuth, apiRateLimiter, userRouter);
+app.use("/message", userAuth, apiRateLimiter, messageRouter);
 
 app.use(errorHandler);
 
@@ -46,8 +47,6 @@ const PORT = process.env.PORT || 3000;
 
 connectDB()
     .then(() => {
-        return connectRedis();
-    }).then(() => {
         return connectSocket(server);
     })
     .then(() => {

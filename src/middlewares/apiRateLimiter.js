@@ -5,6 +5,7 @@ const { sendErrorResponse } = require("../utils/response");
 
 const limiter = new RateLimiterRedis({
     storeClient: redisClient,
+    useRedisPackage: true,
     keyPrefix: "apiRateLimiter",
     points: process.env.API_LIMITER_POINTS || 20,
     duration: process.env.API_LIMITER_DURATION || 60

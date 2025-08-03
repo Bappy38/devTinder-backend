@@ -1,6 +1,5 @@
 const express = require("express");
 const User = require("../models/user");
-const { userAuth } = require("../middlewares/auth");
 const { validateEditProfileData } = require("../utils/validation");
 const { ValidationError } = require("../errors/error");
 const bcrypt = require("bcrypt");
@@ -9,7 +8,7 @@ const { sendSuccessResponse } = require("../utils/response");
 
 const profileRouter = express.Router();
 
-profileRouter.get("/view", userAuth, async (req, res, next) => {
+profileRouter.get("/view", async (req, res, next) => {
     try {
         const user = await User
             .findById(req.userId)
@@ -24,7 +23,7 @@ profileRouter.get("/view", userAuth, async (req, res, next) => {
     }
 });
 
-profileRouter.patch("/edit", userAuth, async (req, res, next) => {
+profileRouter.patch("/edit", async (req, res, next) => {
     try {
         validateEditProfileData(req);
         const updatedUser = await User.findByIdAndUpdate(req.userId, {
@@ -49,7 +48,7 @@ profileRouter.patch("/edit", userAuth, async (req, res, next) => {
     }
 });
 
-profileRouter.patch("/change-password", userAuth, async (req, res, next) => {
+profileRouter.patch("/change-password", async (req, res, next) => {
     try {
         const { currentPassword, newPassword } = req.body;
         const user = await User.findById(req.userId);
