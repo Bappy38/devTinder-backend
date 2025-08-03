@@ -13,6 +13,7 @@ require('dotenv').config();
 
 const app = express();
 
+const allowedOrigins = require('./config/corsConfigs');
 const corsOptions = {
     origin: (origin, callback) => {
         if (!origin || allowedOrigins.includes(origin)) {
@@ -39,7 +40,6 @@ const profileRouter = require('./routes/profileRoutes');
 const requestRouter = require('./routes/requestRoutes');
 const userRouter = require('./routes/userRoutes');
 const messageRouter = require('./routes/messageRoutes');
-const allowedOrigins = require('./config/corsConfigs');
 
 app.use("/auth", authRateLimiter, authRouter);
 app.use("/profile", apiAuth, apiRateLimiter, profileRouter);
