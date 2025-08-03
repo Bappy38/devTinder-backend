@@ -1,11 +1,20 @@
-const cookie = require('cookie');
-const jwt = require("jsonwebtoken");
 const ConnectionRequest = require('../models/connectionRequest');
 const Message = require('../models/message');
 const User = require('../models/user');
 const { Server } = require('socket.io');
 const { createAdapter } = require('@socket.io/redis-adapter');
 const { createClient } = require('redis');
+const socketAuth = require('../middlewares/socketAuth');
+const { RateLimiterRedis, RateLimiterRes } = require('rate-limiter-flexible');
+const redisClient = require("../config/redisClient");
+
+const chatRateLimiter = new RateLimiterRedis({
+    storeClient: redisClient,
+    useRedisPackage: true,
+    keyPrefix: 'socketRateLimiter',
+    points: process.env.CHAT_LIMITER_POINTS | 10,
+    duration: process.env.CHAT_LIMITER_DURATION | 60
+});
 
 const connectSocket = async (server) => {
     try {
@@ -41,32 +50,7 @@ const connectSocket = async (server) => {
 
 const addSocketRoutes = (io) => {
 
-    io.use((socket, next) => {
-
-        const cookies = socket.handshake.headers.cookie;
-            
-        if (!cookies) {
-            return next(new Error('No cookies found'));
-        }
-
-        const parsedCookies = cookie.parse(cookies);
-        const accessToken = parsedCookies['accessToken'];
-
-        if (!accessToken) {
-            return next(new Error('No token found in cookie'));
-        }
-
-        try {
-            const claims = jwt.verify(accessToken, process.env.SECRET_KEY)
-            const { userId } = claims;
-            socket.userId = userId;
-
-            next();
-        } catch (err) {
-            console.error('Socket auth failed: ', err.message);
-            return next(new Error('Invalid token'));
-        }
-    });
+    io.use(socketAuth);
 
     io.on('connection', async (socket) => {
 
@@ -109,6 +93,8 @@ const addSocketRoutes = (io) => {
                     });
                 }
 
+                await chatRateLimiter.consume(socket.userId);
+
                 const newMessage = new Message({
                     roomId,
                     senderId: socket.userId,
@@ -119,6 +105,13 @@ const addSocketRoutes = (io) => {
                 io.to(roomId).emit('receiveMessage', data);
                 return callback({ success: true });
             } catch (err) {
+                if (err instanceof RateLimiterRes) {
+                    const retryAfter = Math.ceil(err.msBeforeNext / 1000);
+                    return callback({
+                        error: `You are sending messages too frequently. Please wait ${retryAfter} seconds.`
+                    });
+                }
+                
                 console.error('Error occured while sending message: ', err);
                 return callback({
                     error: 'Something went wrong while sending the message'

@@ -1,7 +1,7 @@
 require('dotenv').config();
 const jwt = require("jsonwebtoken");
 
-const userAuth = async (req, res, next) => {
+const apiAuth = async (req, res, next) => {
 
     try {
         const cookies = req.cookies;
@@ -21,5 +21,5 @@ const userAuth = async (req, res, next) => {
 };
 
 module.exports = {
-    userAuth
+    apiAuth
 };

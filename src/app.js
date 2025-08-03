@@ -4,7 +4,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const { createServer } = require("node:http");
 
-const { errorHandler } = require('./middlewares/error');
+const { errorHandler } = require('./middlewares/errorHandler');
 
 const { createOrUpdateTemplate } = require("./utils/createEmailTemplate");
 
@@ -16,7 +16,7 @@ const messageRouter = require('./routes/messageRoutes');
 const connectSocket = require('./utils/socket');
 const authRateLimiter = require('./middlewares/authRateLimiter');
 const apiRateLimiter = require('./middlewares/apiRateLimiter');
-const { userAuth } = require('./middlewares/auth');
+const { apiAuth } = require('./middlewares/apiAuth');
 
 require('dotenv').config();
 require('./utils/cronjob');
@@ -34,10 +34,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/auth", authRateLimiter, authRouter);
-app.use("/profile", userAuth, apiRateLimiter, profileRouter);
-app.use("/request", userAuth, apiRateLimiter, requestRouter);
-app.use("/user", userAuth, apiRateLimiter, userRouter);
-app.use("/message", userAuth, apiRateLimiter, messageRouter);
+app.use("/profile", apiAuth, apiRateLimiter, profileRouter);
+app.use("/request", apiAuth, apiRateLimiter, requestRouter);
+app.use("/user", apiAuth, apiRateLimiter, userRouter);
+app.use("/message", apiAuth, apiRateLimiter, messageRouter);
 
 app.use(errorHandler);
 
