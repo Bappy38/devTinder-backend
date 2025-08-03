@@ -1,3 +1,5 @@
+const { sendErrorResponse } = require("../utils/response");
+
 const errorHandler = async (err, req, res, next) => {
     console.error("Error: ", err.stack || err.message || err);
 
@@ -15,9 +17,9 @@ const errorHandler = async (err, req, res, next) => {
         message = err.message;
     }
 
-    res.status(statusCode).json({
-        success: false,
-        error: message
+    sendErrorResponse(res, {
+        status: statusCode,
+        message: message
     });
 };
 

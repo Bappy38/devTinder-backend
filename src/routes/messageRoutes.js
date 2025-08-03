@@ -1,5 +1,4 @@
 const express = require("express");
-const { userAuth } = require("../middlewares/auth");
 const Message = require("../models/message");
 const { sendSuccessResponse } = require("../utils/response");
 const ConnectionRequest = require("../models/connectionRequest");
@@ -7,7 +6,7 @@ const { NotAuthorizedError } = require("../errors/error");
 
 const messageRouter = express.Router();
 
-messageRouter.get("/:roomId", userAuth, async (req, res, next) => {
+messageRouter.get("/:roomId", async (req, res, next) => {
     try {
         const { roomId } = req.params;
         const { cursor, limit = 20 } = req.query;

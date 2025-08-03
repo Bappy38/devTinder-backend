@@ -1,12 +1,11 @@
 const express = require("express");
-const { userAuth } = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 const { sendSuccessResponse } = require("../utils/response");
 
 const userRouter = express.Router();
 
-userRouter.get("/request/received", userAuth, async (req, res, next) => {
+userRouter.get("/request/received", async (req, res, next) => {
     try {
         const loggedInUserId = req.userId;
         const connectionRequests = await ConnectionRequest.find({
@@ -23,7 +22,7 @@ userRouter.get("/request/received", userAuth, async (req, res, next) => {
     }
 });
 
-userRouter.get("/connection", userAuth, async (req, res, next) => {
+userRouter.get("/connection", async (req, res, next) => {
     try {
         const loggedInUserId = req.userId;
         const connections = await ConnectionRequest.find({
@@ -61,7 +60,7 @@ userRouter.get("/connection", userAuth, async (req, res, next) => {
     }
 });
 
-userRouter.get("/feed", userAuth, async (req, res, next) => {
+userRouter.get("/feed", async (req, res, next) => {
     try {
         const loggedInUserId = req.userId;
 
@@ -92,7 +91,7 @@ userRouter.get("/feed", userAuth, async (req, res, next) => {
     }
 });
 
-userRouter.get("/connection/:connectionId", userAuth, async (req, res, next) => {
+userRouter.get("/connection/:connectionId", async (req, res, next) => {
     try {
         const loggedInUserId = req.userId;
         const connectionId = req.params.connectionId;
