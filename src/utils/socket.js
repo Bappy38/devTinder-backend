@@ -38,7 +38,7 @@ const connectSocket = async (server) => {
                     if (!origin || allowedOrigins.includes(origin)) {
                         callback(null, true);
                     } else {
-                        callback(new Error('CORS policy violation: Origin not allowed'));
+                        callback(new Error(`CORS policy violation: Origin ${origin} not allowed`));
                     }
                 },
                 credentials: true
