@@ -49,6 +49,9 @@ authRouter.post("/signin", async (req, res, next) => {
 
         const accessToken = await user.getAccessToken();
         res.cookie("accessToken", accessToken, {
+            httpOnly: process.env.COOKIE_HTTP_ONLY === "true",
+            secure: process.env.COOKIE_SECURE === "true",
+            sameSite: process.env.COOKIE_SAME_SITE || "None",
             expires: new Date(Date.now() + Number(process.env.COOKIE_EXPIRES_IN_MS))
         });
         sendSuccessResponse(res, {
