@@ -79,7 +79,7 @@ userSchema.methods.getAccessToken = async function() {
         },
         process.env.SECRET_KEY,
         {
-            expiresIn: process.env.TOKEN_EXPIRES_IN
+            expiresIn: process.env.TOKEN_EXPIRES_IN || "1h"
         }
     );
 
